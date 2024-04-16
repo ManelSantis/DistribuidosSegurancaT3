@@ -2,9 +2,9 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Scanner;
-import java.sql.SQLException;
 
 import Classes.Car;
 import Classes.User;
@@ -15,11 +15,10 @@ public class Client {
   static Scanner sc = new Scanner(System.in);
 
   public static void main(String[] args)
-
-      throws RemoteException, NotBoundException {
+    throws RemoteException, NotBoundException {
     Registry registry = LocateRegistry.getRegistry("0");
-    AuthenticateService authService = (AuthenticateService) registry.lookup(
-        "AuthenticateService");
+    Firewall firewall = (Firewall) registry.lookup("Firewall");
+
     User userLogin = null;
     boolean login = false;
 
@@ -28,30 +27,30 @@ public class Client {
       String user = sc.nextLine();
       System.out.print("Senha: ");
       String password = sc.nextLine();
-      userLogin = authService.authenticate(user, password);
+      userLogin = firewall.authenticate(user, password, "100.1.1.2");
       if (userLogin != null) {
         System.out.println(
-            "Bem vindo(a) " + userLogin.getUsername() + " em que podemos ajudar?");
+          "Bem vindo(a) " + userLogin.getUsername() + " em que podemos ajudar?"
+        );
         login = true;
       } else {
         System.err.println("Usuario ou senha incorretos. Tente novamente.");
       }
     }
 
-    CarService carService = (CarService) registry.lookup("CarService");
-    carService.saveCar(new Car(1, "Chevrolet Onix", 2010, 50000, "Economico"));
+    firewall.saveCar(new Car(1, "Chevrolet Onix", 2010, 50000, "Economico"));
     int value = 50;
     while (value != 0) {
       if (userLogin.getUserType().equals(UserTypes.CLIENT)) {
         MenuCliente();
         value = sc.nextInt();
         sc.nextLine();
-        SwitchClient(value, carService);
+        SwitchClient(value, firewall);
       } else if (userLogin.getUserType().equals(UserTypes.EMPLOYEE)) {
         MenuFuncionario();
         value = sc.nextInt();
         sc.nextLine();
-        SwitchEmployee(value, carService);
+        SwitchEmployee(value, firewall);
       }
     }
   }
@@ -79,12 +78,12 @@ public class Client {
     System.out.println("----------------------------------");
   }
 
-  public static void SwitchClient(int value, CarService carService)
-      throws RemoteException {
+  public static void SwitchClient(int value, Firewall firewall)
+    throws RemoteException {
     List<Car> cars;
     switch (value) {
       case 1:
-        cars = carService.listCars();
+        cars = firewall.listCars();
         System.out.println("--------- Lista de Carros --------");
         for (Car car : cars) {
           System.out.println("----------------------------------");
@@ -110,7 +109,7 @@ public class Client {
           renavan = sc.nextInt();
           sc.nextLine();
         }
-        cars = carService.searchCars(name, renavan);
+        cars = firewall.searchCars(name, renavan);
         System.out.println("----------- Resultado ------------");
         for (Car car : cars) {
           System.out.println("----------------------------------");
@@ -119,7 +118,7 @@ public class Client {
         }
         break;
       case 3:
-        cars = carService.listCars();
+        cars = firewall.listCars();
         int i = 0;
         System.out.println("----------------------------------");
         for (Car carro : cars) {
@@ -132,11 +131,13 @@ public class Client {
         System.out.println("Digite o renavan do carro que deseja comprar: ");
         int renavanAux = sc.nextInt();
         sc.nextLine();
-        if (carService.searchCars("", renavanAux).size() < 1) {
-          while (carService.searchCars("", renavanAux).size() < 1 &&
-              renavanAux != 404) {
+        if (firewall.searchCars("", renavanAux).size() < 1) {
+          while (
+            firewall.searchCars("", renavanAux).size() < 1 && renavanAux != 404
+          ) {
             System.out.print(
-                "Renavan nao encontrado no sistema. Por favor, digite novamente ou cancele a compra (404): ");
+              "Renavan nao encontrado no sistema. Por favor, digite novamente ou cancele a compra (404): "
+            );
             renavanAux = sc.nextInt();
             sc.nextLine();
           }
@@ -145,7 +146,7 @@ public class Client {
         if (renavanAux == 404) {
           break;
         }
-        Car carCompra = carService.searchCars("", renavanAux).get(0);
+        Car carCompra = firewall.searchCars("", renavanAux).get(0);
         System.out.println("Carro Encontrado");
         System.out.println("----------------------------------");
         System.out.println(carCompra);
@@ -153,7 +154,7 @@ public class Client {
         System.out.println("Deseja concluir a compra? \n 1- Sim | 2. Não");
         int comprar = sc.nextInt();
         if (comprar == 1) {
-          carService.buyCar(renavanAux);
+          firewall.buyCar(renavanAux);
           System.out.println("Carro Comprado");
           System.out.println("----------------------------------");
           System.out.println(carCompra);
@@ -167,12 +168,12 @@ public class Client {
     }
   }
 
-  public static void SwitchEmployee(int value, CarService carService)
-      throws RemoteException {
+  public static void SwitchEmployee(int value, Firewall firewall)
+    throws RemoteException {
     List<Car> cars;
     switch (value) {
       case 1:
-        cars = carService.listCars();
+        cars = firewall.listCars();
         System.out.println("--------- Lista de Carros --------");
         for (Car car : cars) {
           System.out.println("----------------------------------");
@@ -196,7 +197,7 @@ public class Client {
           renavan = sc.nextInt();
           sc.nextLine();
         }
-        cars = carService.searchCars(name, renavan);
+        cars = firewall.searchCars(name, renavan);
         System.out.println("----------- Resultado ------------");
         for (Car car : cars) {
           System.out.println("----------------------------------");
@@ -206,32 +207,33 @@ public class Client {
         break;
       case 3:
         System.out.println(
-            "Existem " + carService.showCountCars() + " carros no sistema.");
+          "Existem " + firewall.showCountCars() + " carros no sistema."
+        );
         break;
       case 4:
         System.out.println("Digite o renavan do carro que deseja comprar: ");
         int renavanAux = sc.nextInt();
         Car car;
         try {
-          car = carService.findCar(renavanAux);
-        System.out.println("Carro Encontrado");
-        System.out.println("----------------------------------");
-        // System.out.println(carDeletar);
-        System.out.println("Renavan: " + car.getRenavan());
-        System.out.println("Nome: " + car.getNome());
-        System.out.println("Ano De fabricação: " + car.getAnoFabricacao());
-        System.out.println("Preço: " + car.getPreco());
-        System.out.println("tipo: " + car.getType());
-        System.out.println("----------------------------------");
-        System.out.println("Deseja concluir a compra? \n 1- Sim | 2. Nao");
-        int comprar = sc.nextInt();
-        if (comprar == 1) {
-          carService.removeCar(renavanAux);
-          System.out.println("Carro Comprado");
+          car = firewall.findCar(renavanAux);
+          System.out.println("Carro Encontrado");
           System.out.println("----------------------------------");
-        } else {
-          System.out.println("Compra cancelada.");
-        }
+          // System.out.println(carDeletar);
+          System.out.println("Renavan: " + car.getRenavan());
+          System.out.println("Nome: " + car.getNome());
+          System.out.println("Ano De fabricação: " + car.getAnoFabricacao());
+          System.out.println("Preço: " + car.getPreco());
+          System.out.println("tipo: " + car.getType());
+          System.out.println("----------------------------------");
+          System.out.println("Deseja concluir a compra? \n 1- Sim | 2. Nao");
+          int comprar = sc.nextInt();
+          if (comprar == 1) {
+            firewall.removeCar(renavanAux);
+            System.out.println("Carro Comprado");
+            System.out.println("----------------------------------");
+          } else {
+            System.out.println("Compra cancelada.");
+          }
         } catch (RemoteException e) {
           // TODO Auto-generated catch block
           e.printStackTrace();
@@ -239,7 +241,7 @@ public class Client {
           // TODO Auto-generated catch block
           e.printStackTrace();
         }
-        
+
         break;
       case 5:
         System.out.print("Digite o Renavan do carro: ");
@@ -254,7 +256,8 @@ public class Client {
         double precoAdd = sc.nextDouble();
         sc.nextLine();
         System.out.println(
-            "Escolha o tipo do carro: \n 1- Economico | 2- Intermediario | 3- Executivo");
+          "Escolha o tipo do carro: \n 1- Economico | 2- Intermediario | 3- Executivo"
+        );
         int tipoAdd = sc.nextInt();
         sc.nextLine();
 
@@ -262,17 +265,13 @@ public class Client {
         if (tipoAdd == 1) {
           addCar = new Car(renavanAdd, nameAdd, anoAdd, precoAdd, "Economico");
         } else if (tipoAdd == 2) {
-          addCar = new Car(
-              renavanAdd,
-              nameAdd,
-              anoAdd,
-              precoAdd,
-              "Intermediario");
+          addCar =
+            new Car(renavanAdd, nameAdd, anoAdd, precoAdd, "Intermediario");
         } else {
           addCar = new Car(renavanAdd, nameAdd, anoAdd, precoAdd, "Executivo");
         }
 
-        carService.saveCar(addCar);
+        firewall.saveCar(addCar);
 
         System.out.println("Carro adicionado");
         System.out.println(addCar);
@@ -283,7 +282,7 @@ public class Client {
         sc.nextLine();
 
         try {
-          Car carDel = carService.findCar(renavanDeletar);
+          Car carDel = firewall.findCar(renavanDeletar);
           System.out.println(carDel.getPreco());
           System.out.println("Carro Encontrado");
           System.out.println("----------------------------------");
@@ -302,14 +301,13 @@ public class Client {
           e.printStackTrace();
         }
 
-       
         if (renavanDeletar == 404) {
           break;
         }
         System.out.println("Deseja concluir a remocao? \n 1- Sim | 2. Nao");
         int deletar = sc.nextInt();
         if (deletar == 1) {
-          carService.removeCar(renavanDeletar);
+          firewall.removeCar(renavanDeletar);
           System.out.println("Carro Removido");
           System.out.println("----------------------------------");
           // System.out.println(carDeletar);
@@ -322,8 +320,8 @@ public class Client {
         System.out.print("Digite o renavan do carro que deseja editar: ");
         int renavanEditar = sc.nextInt();
         try {
-          Car oldCarEdit = carService.findCar(renavanEditar);
-          Car carEdit = carService.findCar(renavanEditar);
+          Car oldCarEdit = firewall.findCar(renavanEditar);
+          Car carEdit = firewall.findCar(renavanEditar);
           sc.nextLine();
           System.out.println("Renavan atual: " + carEdit.getRenavan());
           System.out.print("Novo: ");
@@ -355,17 +353,33 @@ public class Client {
           }
 
           System.out.println("Deseja realmente alterar esses valores?");
-          System.out.println("Renagan: " + oldCarEdit.getRenavan() + " -> " + carEdit.getRenavan());
-          System.out.println("Nome: " + oldCarEdit.getNome() + " -> " + carEdit.getNome());
-          System.out.println("Ano: " + oldCarEdit.getAnoFabricacao() + " -> " + carEdit.getAnoFabricacao());
-          System.out.println("Preco: " + oldCarEdit.getPreco() + " -> " + carEdit.getPreco());
-          System.out.println("Tipo: " + oldCarEdit.getType() + " -> " + carEdit.getType());
+          System.out.println(
+            "Renagan: " +
+            oldCarEdit.getRenavan() +
+            " -> " +
+            carEdit.getRenavan()
+          );
+          System.out.println(
+            "Nome: " + oldCarEdit.getNome() + " -> " + carEdit.getNome()
+          );
+          System.out.println(
+            "Ano: " +
+            oldCarEdit.getAnoFabricacao() +
+            " -> " +
+            carEdit.getAnoFabricacao()
+          );
+          System.out.println(
+            "Preco: " + oldCarEdit.getPreco() + " -> " + carEdit.getPreco()
+          );
+          System.out.println(
+            "Tipo: " + oldCarEdit.getType() + " -> " + carEdit.getType()
+          );
           System.out.println("1- Sim | 2- Nao");
           int concluirEdicao = sc.nextInt();
           sc.nextLine();
 
           if (concluirEdicao == 1) {
-            carService.editCar(carEdit, oldCarEdit.getRenavan());
+            firewall.editCar(carEdit, oldCarEdit.getRenavan());
             System.out.println("Carro Editado.");
           } else {
             System.out.println("Edição cancelada.");

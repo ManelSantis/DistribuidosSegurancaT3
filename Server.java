@@ -11,12 +11,12 @@ public class Server {
             Conexao con = new Conexao();
             AuthenticateImplement authenticateImplement = new AuthenticateImplement();
             CarImplement carImplement = new CarImplement();
-            ServerImplement server = new ServerImplement(authenticateImplement, carImplement);
+            Firewall firewall = new Firewall(authenticateImplement, carImplement);
+            ServerImplement server = new ServerImplement(firewall);
 
             LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
             Registry registry = LocateRegistry.getRegistry();
-            registry.bind("AuthenticateService", server);
-            registry.bind("CarService", server);
+            registry.bind("Firewall", server);
 
             System.err.println("Servico de autenticacao pronto.");
             System.err.println("Servico da loja de carros pronto.");

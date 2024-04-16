@@ -4,9 +4,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.sql.Statement;
+
 import Classes.Car;
 
 
@@ -112,8 +113,7 @@ public class CarImplement extends UnicastRemoteObject implements CarService {
         }
         return carros;
     }
-
-    @override
+    
     public Car findCar(int renavan) throws RemoteException, SQLException {
         String sql = "select * from veiculos where renavan = ?";
         PreparedStatement ptst;
