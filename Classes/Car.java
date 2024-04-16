@@ -11,14 +11,18 @@ public class Car implements Serializable{
     private String nome;
     private int anoFabricacao;
     private double preco;
-    private CarTypes type;
+    private String type;
 
-    public Car(int renavan, String nome, int anoFabricacao, double preco, CarTypes type) {
+    public Car(int renavan, String nome, int anoFabricacao, double preco, String type) {
         this.renavan = renavan;
         this.nome = nome;
         this.anoFabricacao = anoFabricacao;
         this.preco = preco;
         this.type = type;
+    }
+
+    public Car() {
+        //TODO Auto-generated constructor stub
     }
 
     public int getRenavan() {
@@ -53,11 +57,11 @@ public class Car implements Serializable{
         this.preco = preco;
     }
 
-    public CarTypes getType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(CarTypes type) {
+    public void setType(String type) {
         this.type = type;
     }
 

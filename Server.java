@@ -8,6 +8,7 @@ import java.security.spec.InvalidKeySpecException;
 public class Server {
     public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeySpecException {
         try {
+            Conexao con = new Conexao();
             AuthenticateImplement authenticateImplement = new AuthenticateImplement();
             CarImplement carImplement = new CarImplement();
             ServerImplement server = new ServerImplement(authenticateImplement, carImplement);
