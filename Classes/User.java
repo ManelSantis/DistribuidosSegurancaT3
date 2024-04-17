@@ -13,6 +13,7 @@ public class User implements Serializable {
     private String passwordHash;
     private byte[] passwordSalt;
     private UserTypes userType;
+    private HybridCrypt hcKey;
 
     public User(String username, String password, UserTypes userType) throws NoSuchAlgorithmException, InvalidKeySpecException {
         this.username = username;
@@ -48,5 +49,14 @@ public class User implements Serializable {
                 "username='" + username + '\'' +
                 ", userType=" + userType +
                 '}';
+    }
+
+    
+    public HybridCrypt getHcKey() {
+        return hcKey;
+    }
+
+    public void setHcKey(HybridCrypt hcKey) {
+        this.hcKey = hcKey;
     }
 }
