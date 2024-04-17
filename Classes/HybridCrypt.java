@@ -1,5 +1,6 @@
 package Classes;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
@@ -9,7 +10,9 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
-public class HybridCrypt {
+public class HybridCrypt implements Serializable{
+    private static final long serialVersionUID = 1L;
+
     private RSA chaveRsa;
 
     public HybridCrypt () throws NoSuchAlgorithmException {

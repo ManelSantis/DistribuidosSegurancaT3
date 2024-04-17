@@ -21,6 +21,7 @@ public class User implements Serializable {
         // Gere o salt e o hash da senha
         this.passwordSalt = PasswordHash.generateSalt();
         this.passwordHash = PasswordHash.hashPassword(password, this.passwordSalt);
+        this.hcKey = new HybridCrypt();
     }
 
     public String getUsername() {

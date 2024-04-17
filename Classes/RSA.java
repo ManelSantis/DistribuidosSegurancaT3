@@ -1,9 +1,12 @@
 package Classes;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Random;
 
-public class RSA {
+public class RSA implements Serializable{
+    private static final long serialVersionUID = 1L;
+
     private BigInteger p;
     private BigInteger q;
     private BigInteger n;
