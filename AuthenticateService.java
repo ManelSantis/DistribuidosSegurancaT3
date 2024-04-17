@@ -4,5 +4,5 @@ import java.rmi.RemoteException;
 import Classes.User;
 
 public interface AuthenticateService extends Remote {
-    User authenticate(String username, String password) throws RemoteException;
+    User authenticate(String username, String password, String ipClient) throws RemoteException;
 }

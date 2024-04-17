@@ -8,15 +8,14 @@ import java.security.spec.InvalidKeySpecException;
 public class Server {
     public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeySpecException {
         try {
-            Conexao con = new Conexao();
             AuthenticateImplement authenticateImplement = new AuthenticateImplement();
             CarImplement carImplement = new CarImplement();
-            Firewall firewall = new Firewall(authenticateImplement, carImplement);
-            ServerImplement server = new ServerImplement(firewall);
+            ServerImplement server = new ServerImplement(authenticateImplement, carImplement);
 
             LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
             Registry registry = LocateRegistry.getRegistry();
-            registry.bind("Firewall", server);
+            registry.bind("AuthenticateImplement", server);
+            registry.bind("CarImplement", server);
 
             System.err.println("Servico de autenticacao pronto.");
             System.err.println("Servico da loja de carros pronto.");

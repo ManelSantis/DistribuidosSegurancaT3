@@ -28,7 +28,7 @@ public class AuthenticateImplement extends UnicastRemoteObject implements Authen
     }
 
     @Override
-    public User authenticate(String username, String password) throws RemoteException {
+    public User authenticate(String username, String password, String ipClient) throws RemoteException {
 
         if (blockedUsers.containsKey(username)) {
             long lockedTime = blockedUsers.get(username);

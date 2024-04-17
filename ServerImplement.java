@@ -7,46 +7,79 @@ import Classes.Car;
 import Classes.User;
 
 public class ServerImplement extends UnicastRemoteObject {
-    private Firewall firewall;
+    private AuthenticateImplement authenticateImplement;
+    private CarImplement carImplement;
 
-    public ServerImplement(Firewall firewall) throws RemoteException {
-        this.firewall = firewall;
+    public ServerImplement(AuthenticateImplement authenticateImplement, CarImplement carImplement) throws RemoteException {
+        this.authenticateImplement = authenticateImplement;
+        this.carImplement = carImplement;
     }
     
-    public User authenticate(String username, String password, String userIp) throws RemoteException {
-        return firewall.authenticate(username, password, userIp);
+    public User authenticate(String username, String password, String clientIp) throws RemoteException {
+        if (!isIpAllowed(clientIp)) {
+            System.out.println("Endereço IP não permitido: " + clientIp);
+            return null;
+        }
+
+        User authenticatedUser = authenticateImplement.authenticate(username, password, clientIp);
+
+        if (authenticatedUser != null) {
+            System.out.println("Autenticação bem-sucedida para o usuário: " + authenticatedUser.getUsername());
+        } else {
+            System.out.println("Autenticação falhou para o usuário: " + username);
+        }
+
+        return authenticatedUser;
+    }
+
+    private boolean isIpAllowed(String clientIp) {
+        int clientIpInteger = ipToInteger(clientIp);
+    
+        int startRange = ipToInteger("100.1.1.0");
+        int endRange = ipToInteger("100.1.255.255");
+    
+        return clientIpInteger >= startRange && clientIpInteger <= endRange;
+    }
+
+    private int ipToInteger(String ip) {
+        String[] parts = ip.split("\\.");
+        int ipInteger = 0;
+        for (int i = 0; i < 4; i++) {
+            ipInteger = (ipInteger << 8) + Integer.parseInt(parts[i]);
+        }
+        return ipInteger;
     }
 
     public void saveCar(Car car) throws RemoteException {
-        firewall.saveCar(car);
+        carImplement.saveCar(car);
     }
 
     public void removeCar(int renavan) throws RemoteException {
-        firewall.removeCar(renavan);
+        carImplement.removeCar(renavan);
     }
 
     public void editCar(Car car, int id) throws RemoteException, SQLException{
-        firewall.editCar(car, id);
+        carImplement.editCar(car, id);
     }
 
     public void buyCar(int renavan) throws RemoteException {
-        firewall.buyCar(renavan);
+        carImplement.buyCar(renavan);
     }
 
     public Car findCar(int renavan) throws RemoteException,SQLException {
-        return firewall.findCar(renavan);
+        return carImplement.findCar(renavan);
     }
     
     public List<Car> listCars() throws RemoteException {
-        return firewall.listCars();
+        return carImplement.listCars();
     }
 
     public List<Car> searchCars(String name, int renavan) throws RemoteException {
-        return firewall.searchCars(name, renavan);
+        return carImplement.searchCars(name, renavan);
     }
 
     public int showCountCars() throws RemoteException {
-        return firewall.showCountCars();
+        return carImplement.showCountCars();
     }
 
 }

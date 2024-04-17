@@ -20,7 +20,7 @@ public class Firewall {
             return null;
         }
 
-        User authenticatedUser = authenticateImplement.authenticate(username, password);
+        User authenticatedUser = authenticateImplement.authenticate(username, password, clientIp);
 
         if (authenticatedUser != null) {
             System.out.println("Autenticação bem-sucedida para o usuário: " + authenticatedUser.getUsername());
