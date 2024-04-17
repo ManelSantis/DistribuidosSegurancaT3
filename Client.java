@@ -15,8 +15,7 @@ public class Client {
 
   public static void main(String[] args) throws Exception {
     Registry registry = LocateRegistry.getRegistry("0");
-    AuthenticateImplement authenticateImplement = (AuthenticateImplement) registry.lookup("AuthenticateImplement");
-    CarImplement carImplement = (CarImplement) registry.lookup("CarImplement");
+    AuthenticateService authService = (AuthenticateService) registry.lookup("AuthenticateService");    
 
     User userLogin = null;
     boolean login = false;
@@ -26,7 +25,7 @@ public class Client {
       String user = sc.nextLine();
       System.out.print("Senha: ");
       String password = sc.nextLine();
-      userLogin = authenticateImplement.authenticate(user, password, "100.1.1.2");
+      userLogin = authService.authenticate(user, password, "100.1.1.2");
       if (userLogin != null) {
         userLogin
           .getHcKey()
@@ -41,19 +40,20 @@ public class Client {
       }
     }
 
-    carImplement.saveCar(new Car(1, "Chevrolet Onix", 2010, 50000, "Economico"));
+    CarService carService = (CarService) registry.lookup("CarService");
+    carService.saveCar(new Car(1, "Chevrolet Onix", 2010, 50000, "Economico"));
     int value = 50;
     while (value != 0) {
       if (userLogin.getUserType().equals(UserTypes.CLIENT)) {
         MenuCliente();
         value = sc.nextInt();
         sc.nextLine();
-        SwitchClient(value, carImplement, userLogin);
+        SwitchClient(value, carService, userLogin);
       } else if (userLogin.getUserType().equals(UserTypes.EMPLOYEE)) {
         MenuFuncionario();
         value = sc.nextInt();
         sc.nextLine();
-        SwitchEmployee(value, carImplement, userLogin);
+        SwitchEmployee(value, carService, userLogin);
       }
     }
   }
@@ -81,12 +81,12 @@ public class Client {
     System.out.println("----------------------------------");
   }
 
-  public static void SwitchClient(int value, CarImplement carImplement, User userLogin)
+  public static void SwitchClient(int value, CarService carService, User userLogin)
     throws Exception {
     List<Car> cars;
     switch (value) {
       case 1:
-        cars = carImplement.listCars();
+        cars = carService.listCars();
         userLogin.getHcKey().mensagem("Lista de Carros Encontrada.");
         System.out.println("--------- Lista de Carros --------");
         for (Car car : cars) {
@@ -113,7 +113,7 @@ public class Client {
           renavan = sc.nextInt();
           sc.nextLine();
         }
-        cars = carImplement.searchCars(name, renavan);
+        cars = carService.searchCars(name, renavan);
         userLogin.getHcKey().mensagem("Lista de Carros Encontrada.");
         System.out.println("----------- Resultado ------------");
         for (Car car : cars) {
@@ -123,7 +123,7 @@ public class Client {
         }
         break;
       case 3:
-        cars = carImplement.listCars();
+        cars = carService.listCars();
         int i = 0;
         System.out.println("----------------------------------");
         for (Car carro : cars) {
@@ -137,9 +137,9 @@ public class Client {
         System.out.println("Digite o renavan do carro que deseja comprar: ");
         int renavanAux = sc.nextInt();
         sc.nextLine();
-        if (carImplement.searchCars("", renavanAux).size() < 1) {
+        if (carService.searchCars("", renavanAux).size() < 1) {
           while (
-            carImplement.searchCars("", renavanAux).size() < 1 && renavanAux != 404
+            carService.searchCars("", renavanAux).size() < 1 && renavanAux != 404
           ) {
             userLogin
               .getHcKey()
@@ -154,7 +154,7 @@ public class Client {
         if (renavanAux == 404) {
           break;
         }
-        Car carCompra = carImplement.searchCars("", renavanAux).get(0);
+        Car carCompra = carService.searchCars("", renavanAux).get(0);
         userLogin.getHcKey().mensagem("Carro Encontrado no sistema.");
         System.out.println("Carro Encontrado");
         System.out.println("----------------------------------");
@@ -163,7 +163,7 @@ public class Client {
         System.out.println("Deseja concluir a compra? \n 1- Sim | 2. Não");
         int comprar = sc.nextInt();
         if (comprar == 1) {
-          carImplement.buyCar(renavanAux);
+          carService.buyCar(renavanAux);
           userLogin.getHcKey().mensagem("Carro Comprado.");
           System.out.println("Carro Comprado");
           System.out.println("----------------------------------");
@@ -181,13 +181,13 @@ public class Client {
 
   public static void SwitchEmployee(
     int value,
-    CarImplement carImplement,
+    CarService carService,
     User userLogin
   ) throws Exception {
     List<Car> cars;
     switch (value) {
       case 1:
-        cars = carImplement.listCars();
+        cars = carService.listCars();
         userLogin.getHcKey().mensagem("Lista de Carros Encontrada.");
         System.out.println("--------- Lista de Carros --------");
         for (Car car : cars) {
@@ -212,7 +212,7 @@ public class Client {
           renavan = sc.nextInt();
           sc.nextLine();
         }
-        cars = carImplement.searchCars(name, renavan);
+        cars = carService.searchCars(name, renavan);
         userLogin.getHcKey().mensagem("Lista de Carros Encontrada.");
         System.out.println("----------- Resultado ------------");
         for (Car car : cars) {
@@ -224,16 +224,16 @@ public class Client {
       case 3:
         userLogin.getHcKey().mensagem("Quantidade de Carros Encontrada.");
         System.out.println(
-          "Existem " + carImplement.showCountCars() + " carros no sistema."
+          "Existem " + carService.showCountCars() + " carros no sistema."
         );
         break;
       case 4:
         System.out.println("Digite o renavan do carro que deseja comprar: ");
         int renavanAux = sc.nextInt();
         sc.nextLine();
-        if (carImplement.searchCars("", renavanAux).size() < 1) {
+        if (carService.searchCars("", renavanAux).size() < 1) {
           while (
-            carImplement.searchCars("", renavanAux).size() < 1 && renavanAux != 404
+            carService.searchCars("", renavanAux).size() < 1 && renavanAux != 404
           ) {
             userLogin
               .getHcKey()
@@ -248,7 +248,7 @@ public class Client {
         if (renavanAux == 404) {
           break;
         }
-        Car carCompra = carImplement.searchCars("", renavanAux).get(0);
+        Car carCompra = carService.searchCars("", renavanAux).get(0);
         userLogin.getHcKey().mensagem("Carro Encontrado no sistema.");
         System.out.println("Carro Encontrado");
         System.out.println("----------------------------------");
@@ -257,7 +257,7 @@ public class Client {
         System.out.println("Deseja concluir a compra? \n 1- Sim | 2. Não");
         int comprar = sc.nextInt();
         if (comprar == 1) {
-          carImplement.buyCar(renavanAux);
+          carService.buyCar(renavanAux);
           userLogin.getHcKey().mensagem("Carro Comprado.");
           System.out.println("Carro Comprado");
           System.out.println("----------------------------------");
@@ -295,7 +295,7 @@ public class Client {
           addCar = new Car(renavanAdd, nameAdd, anoAdd, precoAdd, "Executivo");
         }
 
-        carImplement.saveCar(addCar);
+        carService.saveCar(addCar);
         userLogin.getHcKey().mensagem("Carro Adicionado.");
         System.out.println("Carro adicionado");
         System.out.println(addCar);
@@ -306,7 +306,7 @@ public class Client {
         sc.nextLine();
 
         try {
-          Car carDel = carImplement.findCar(renavanDeletar);
+          Car carDel = carService.findCar(renavanDeletar);
           System.out.println(carDel.getPreco());
           userLogin.getHcKey().mensagem("Carro Encontrado.");
           System.out.println("Carro Encontrado");
@@ -332,7 +332,7 @@ public class Client {
         System.out.println("Deseja concluir a remocao? \n 1- Sim | 2. Nao");
         int deletar = sc.nextInt();
         if (deletar == 1) {
-          carImplement.removeCar(renavanDeletar);
+          carService.removeCar(renavanDeletar);
           userLogin.getHcKey().mensagem("Carro Removido.");
           System.out.println("Carro Removido");
           System.out.println("----------------------------------");
@@ -346,8 +346,8 @@ public class Client {
         System.out.print("Digite o renavan do carro que deseja editar: ");
         int renavanEditar = sc.nextInt();
         try {
-          Car oldCarEdit = carImplement.findCar(renavanEditar);
-          Car carEdit = carImplement.findCar(renavanEditar);
+          Car oldCarEdit = carService.findCar(renavanEditar);
+          Car carEdit = carService.findCar(renavanEditar);
           sc.nextLine();
           System.out.println("Renavan atual: " + carEdit.getRenavan());
           System.out.print("Novo: ");
@@ -405,7 +405,7 @@ public class Client {
           sc.nextLine();
 
           if (concluirEdicao == 1) {
-            carImplement.editCar(carEdit, oldCarEdit.getRenavan());
+            carService.editCar(carEdit, oldCarEdit.getRenavan());
             userLogin.getHcKey().mensagem("Carro Editado.");
           } else {
             userLogin.getHcKey().mensagem("Edição Cancelada..");

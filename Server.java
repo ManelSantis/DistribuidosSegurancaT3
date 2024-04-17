@@ -14,8 +14,8 @@ public class Server {
 
             LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
             Registry registry = LocateRegistry.getRegistry();
-            registry.bind("AuthenticateImplement", server);
-            registry.bind("CarImplement", server);
+            registry.bind("AuthenticateService", server);
+            registry.bind("CarService", server);
 
             System.err.println("Servico de autenticacao pronto.");
             System.err.println("Servico da loja de carros pronto.");
